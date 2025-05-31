@@ -94,6 +94,7 @@ class PluginImpl : IPlugin {
                                     this.text = "检测中..."
                                     textArea.text = ""
                                     checker(
+                                        id,
                                         project,
                                         startPort.number,
                                         endPort.number,
@@ -125,6 +126,7 @@ class PluginImpl : IPlugin {
     }
 
     private fun checker(
+        id:String,
         project: Project,
         startPort: Int,
         endPort: Int,
@@ -150,7 +152,7 @@ class PluginImpl : IPlugin {
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "检测中") {
             override fun run(indicator: ProgressIndicator) {
                 for (port in startPort until endPort + 1) {
-                    if (indicator.isCanceled || CACHE[project.locationHash] == null) {
+                    if (indicator.isCanceled || CACHE[id] == null) {
                         break
                     }
                     try {
