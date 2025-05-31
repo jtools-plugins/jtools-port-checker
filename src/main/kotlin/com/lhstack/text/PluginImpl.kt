@@ -16,20 +16,21 @@ import com.intellij.util.ui.JBUI
 import com.jetbrains.rd.util.concurrentMapOf
 import com.lhstack.tools.plugins.Helper
 import com.lhstack.tools.plugins.IPlugin
+import com.lhstack.tools.plugins.Logger
 import org.apache.http.conn.util.InetAddressUtils
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Font
-import java.net.DatagramPacket
-import java.net.DatagramSocket
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.*
 import javax.swing.*
 
 class PluginImpl : IPlugin {
 
     companion object {
         var CACHE = concurrentMapOf<String, JComponent>()
+        var LOGGER_CACHE = concurrentMapOf<String, Logger>()
     }
 
     override fun pluginIcon(): Icon = Helper.findIcon("port.svg", PluginImpl::class.java)
@@ -37,12 +38,18 @@ class PluginImpl : IPlugin {
     override fun pluginTabIcon(): Icon = Helper.findIcon("port-tab.svg", PluginImpl::class.java)
 
     override fun closeProject(project: Project) {
-        CACHE.remove(project.locationHash)
+        LOGGER_CACHE.remove(project.locationHash)
+    }
+
+    override fun closePanel(locationHash: String, pluginPanel: JComponent) {
+        CACHE.remove(pluginPanel.name)
     }
 
     override fun createPanel(project: Project): JComponent {
-        return CACHE.computeIfAbsent(project.locationHash) {
+        val id = UUID.randomUUID().toString()
+        return CACHE.computeIfAbsent(id) {
             JPanel(BorderLayout()).apply {
+                this.name = id
                 val textArea = JBTextArea().apply {
                     this.font = Font("宋体", Font.PLAIN, 20)
                     this.border = JBUI.Borders.compound(
@@ -113,6 +120,10 @@ class PluginImpl : IPlugin {
         }
     }
 
+    override fun supportMultiOpens(): Boolean {
+        return true
+    }
+
     private fun checker(
         project: Project,
         startPort: Int,
@@ -175,16 +186,5 @@ class PluginImpl : IPlugin {
 
     override fun pluginDesc(): String = "端口扫描"
 
-    override fun pluginVersion(): String = "0.0.1"
-}
-
-fun main() {
-    DatagramSocket().use {
-        it.soTimeout = 5000
-        val byteArray = ByteArray(24)
-        val datagramPacket = DatagramPacket(byteArray, byteArray.size, InetSocketAddress("114.114.114.114", 53))
-        it.send(datagramPacket)
-        it.receive(DatagramPacket(byteArray, byteArray.size))
-        println("Hello World")
-    }
+    override fun pluginVersion(): String = "0.0.2"
 }
