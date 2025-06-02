@@ -184,6 +184,10 @@ class PluginImpl : IPlugin {
         })
     }
 
+    override fun support(jToolsVersion: Int): Boolean {
+        return jToolsVersion >= Helper.JTOOLS_VERSION
+    }
+
     override fun pluginName(): String = "端口扫描"
 
     override fun pluginDesc(): String = "端口扫描"
