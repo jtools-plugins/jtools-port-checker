@@ -185,7 +185,7 @@ class PluginImpl : IPlugin {
     }
 
     override fun support(jToolsVersion: Int): Boolean {
-        return jToolsVersion >= Helper.JTOOLS_VERSION
+        return jToolsVersion >= 107
     }
 
     override fun pluginName(): String = "端口扫描"
